@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Samin Shorif — Entrepreneur & Product Builder</title>
+  <meta name="description" content="Samin Shorif builds digital products that solve real business problems — SaaS platforms, AI & automation systems, and internal tools that create measurable value." />
+  <meta property="og:title" content="Samin Shorif — Entrepreneur & Product Builder" />
+  <meta property="og:description" content="I find friction, design practical solutions, and turn ideas into working systems people actually use." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d0e0c'/%3E%3Ctext x='32' y='43' font-family='Arial' font-size='32' font-weight='700' fill='%23d6fb41' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body data-loading>
+
+  <!-- ===================== PRELOADER ===================== -->
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="preloader__inner">
+      <p class="preloader__name">SAMIN SHORIF</p>
+      <p class="preloader__tag">PORTFOLIO — ©2026</p>
+    </div>
+    <span class="preloader__count" id="preloaderCount">0</span>
+  </div>
+
+  <!-- ===================== CUSTOM CURSOR ===================== -->
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <div class="cursor__dot"></div>
+    <div class="cursor__label" id="cursorLabel"></div>
+  </div>
+
+  <!-- ===================== NAV ===================== -->
+  <header class="nav" id="nav">
+    <a href="#top" class="nav__logo" data-scroll-to="#top" aria-label="Back to top">
+      <span class="nav__logo-mark">S</span>
+      <span class="nav__logo-text">SAMIN&nbsp;SHORIF<em>©2026</em></span>
+    </a>
+
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#work"    data-scroll-to="#work"><span data-nav-index="01">Work</span></a>
+      <a href="#about"   data-scroll-to="#about"><span data-nav-index="02">About</span></a>
+      <a href="#stack"   data-scroll-to="#stack"><span data-nav-index="03">Stack</span></a>
+      <a href="#contact" data-scroll-to="#contact"><span data-nav-index="04">Contact</span></a>
+    </nav>
+
+    <a class="nav__cta btn btn--small" href="mailto:saminshorif.ai@gmail.com" data-magnetic>
+      <span class="btn__text">Let's talk</span>
+    </a>
+
+    <button class="nav__burger" id="navBurger" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <!-- ===================== MOBILE MENU ===================== -->
+  <div class="menu" id="menu" aria-hidden="true">
+    <nav class="menu__links" aria-label="Mobile">
+      <a href="#work"    data-scroll-to="#work"><em>01</em>Work</a>
+      <a href="#about"   data-scroll-to="#about"><em>02</em>About</a>
+      <a href="#stack"   data-scroll-to="#stack"><em>03</em>Stack</a>
+      <a href="#contact" data-scroll-to="#contact"><em>04</em>Contact</a>
+    </nav>
+    <div class="menu__footer">
+      <a href="https://www.linkedin.com/in/samin-shorif-a72836346" target="_blank" rel="noopener">LinkedIn ↗</a>
+      <a href="https://www.facebook.com/samin.shorif.2025" target="_blank" rel="noopener">Facebook ↗</a>
+      <a href="mailto:saminshorif.ai@gmail.com">Email ↗</a>
+    </div>
+  </div>
+
+  <main id="top">
+
+    <!-- ===================== HERO ===================== -->
+    <section class="hero" id="hero">
+      <canvas class="hero__canvas" id="heroCanvas" aria-hidden="true"></canvas>
+      <div class="hero__grain" aria-hidden="true"></div>
+
+      <div class="hero__top container">
+        <p class="hero__meta mono" data-hero-fade>PORTFOLIO — ©2026</p>
+        <p class="hero__meta mono" data-hero-fade>BASED IN BANGLADESH&nbsp;&nbsp;↘&nbsp;&nbsp;WORKING WORLDWIDE</p>
+      </div>
+
+      <div class="hero__center container">
+        <p class="hero__role mono" data-hero-fade>
+          <span class="hero__role-dot"></span>ENTREPRENEUR&nbsp;&amp;&nbsp;PRODUCT&nbsp;BUILDER
+        </p>
+        <h1 class="hero__title" aria-label="Samin Shorif">
+          <span class="hero__line"><span data-split>SAMIN</span></span>
+          <span class="hero__line hero__line--outline"><span data-split>SHORIF</span></span>
+        </h1>
+        <div class="hero__sub">
+          <p class="hero__desc" data-hero-fade>
+            I build digital products that solve real business problems —
+            creating measurable value, saving time and cutting operational cost.
+          </p>
+          <div class="hero__actions" data-hero-fade>
+            <a class="btn btn--fill" href="#work" data-scroll-to="#work" data-magnetic>
+              <span class="btn__text">Selected work</span><span class="btn__arrow">↓</span>
+            </a>
+            <a class="btn" href="#contact" data-scroll-to="#contact" data-magnetic>
+              <span class="btn__text">Start a conversation</span><span class="btn__arrow">↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero__bottom container">
+        <p class="mono" data-hero-fade>SAAS&nbsp;·&nbsp;AI&nbsp;·&nbsp;AUTOMATION&nbsp;·&nbsp;OPS</p>
+        <div class="hero__scroll" data-hero-fade aria-hidden="true">
+          <span class="mono">SCROLL</span>
+          <span class="hero__scroll-line"><i></i></span>
+        </div>
+        <p class="mono hero__grind" data-hero-fade>LET'S&nbsp;GRIND&nbsp;↗</p>
+      </div>
+    </section>
+
+    <!-- ===================== MARQUEE ===================== -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track" id="marqueeTrack">
+        <span class="marquee__item">BUILD<b>×</b>SHIP<b>×</b>LEARN<b>×</b>REPEAT<b>×</b></span>
+        <span class="marquee__item">BUILD<b>×</b>SHIP<b>×</b>LEARN<b>×</b>REPEAT<b>×</b></span>
+        <span class="marquee__item">BUILD<b>×</b>SHIP<b>×</b>LEARN<b>×</b>REPEAT<b>×</b></span>
+        <span class="marquee__item">BUILD<b>×</b>SHIP<b>×</b>LEARN<b>×</b>REPEAT<b>×</b></span>
+      </div>
+    </div>
+
+    <!-- ===================== WORK ===================== -->
+    <section class="work section" id="work">
+      <div class="container">
+        <header class="section__head">
+          <p class="section__label mono" data-reveal>01&nbsp;—&nbsp;SELECTED&nbsp;WORK</p>
+          <h2 class="section__title" data-reveal>Projects that earn<br /><span>their keep.</span></h2>
+          <p class="section__note" data-reveal>Each one started as a real problem — friction, wasted hours,
+            messy data — and ended as a working system. Click a project to see what's inside.</p>
+        </header>
+
+        <div class="work__list" id="workList">
+
+          <!-- 1 · GymDesk OS -->
+          <article class="project" data-reveal>
+            <button class="project__head" aria-expanded="false">
+              <span class="project__index mono">01</span>
+              <span class="project__title-wrap">
+                <span class="project__title">GymDesk OS</span>
+                <span class="project__tags mono">SAAS · B2B PLATFORM</span>
+              </span>
+              <span class="project__visual" aria-hidden="true">
+                <svg viewBox="0 0 200 140" fill="none">
+                  <rect x="10" y="12" width="42" height="116" rx="6" class="sv-panel"/>
+                  <rect x="18" y="24" width="26" height="5" rx="2.5" class="sv-acc"/>
+                  <rect x="18" y="38" width="26" height="4" rx="2" class="sv-dim"/>
+                  <rect x="18" y="50" width="20" height="4" rx="2" class="sv-dim"/>
+                  <rect x="18" y="62" width="24" height="4" rx="2" class="sv-dim"/>
+                  <rect x="62" y="12" width="128" height="52" rx="6" class="sv-panel"/>
+                  <path class="sv-line" d="M70 52 L88 40 L104 46 L122 30 L140 36 L158 24 L180 28"/>
+                  <rect x="62" y="74" width="60" height="54" rx="6" class="sv-panel"/>
+                  <rect x="70" y="112" width="8" height="8"  rx="2" class="sv-bar"/>
+                  <rect x="84" y="100" width="8" height="20" rx="2" class="sv-bar"/>
+                  <rect x="98" y="90"  width="8" height="30" rx="2" class="sv-acc"/>
+                  <rect x="130" y="74" width="60" height="54" rx="6" class="sv-panel"/>
+                  <circle cx="160" cy="98" r="14" class="sv-ring"/>
+                  <path class="sv-acc-line" d="M160 84 A14 14 0 0 1 173 103"/>
+                </svg>
+              </span>
+              <span class="project__status mono">FLAGSHIP</span>
+              <span class="project__toggle" aria-hidden="true"><i></i><i></i></span>
+            </button>
+            <div class="project__body">
+              <div class="project__body-inner">
+                <p>An all-in-one gym management platform — members, billing, attendance and
+                   day-to-day operations in a single dashboard, so owners run the floor instead of spreadsheets.</p>
+                <ul class="project__stack mono">
+                  <li>Next.js</li><li>Tailwind CSS</li><li>Supabase</li><li>Vercel</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <!-- 2 · E-commerce Analytics -->
+          <article class="project" data-reveal>
+            <button class="project__head" aria-expanded="false">
+              <span class="project__index mono">02</span>
+              <span class="project__title-wrap">
+                <span class="project__title">Commerce Analytics</span>
+                <span class="project__tags mono">SAAS · ANALYTICS &amp; REPORTING</span>
+              </span>
+              <span class="project__visual" aria-hidden="true">
+                <svg viewBox="0 0 200 140" fill="none">
+                  <rect x="10" y="12" width="180" height="116" rx="6" class="sv-panel"/>
+                  <path class="sv-grid" d="M10 44 H190 M10 72 H190 M10 100 H190"/>
+                  <path class="sv-area" d="M22 108 L52 84 L82 94 L112 60 L142 70 L172 38 V118 H22 Z"/>
+                  <path class="sv-acc-line" d="M22 108 L52 84 L82 94 L112 60 L142 70 L172 38"/>
+                  <circle cx="112" cy="60" r="4" class="sv-dot"/>
+                  <rect x="96" y="34" width="34" height="16" rx="4" class="sv-chip"/>
+                </svg>
+              </span>
+              <span class="project__status project__status--dev mono">IN&nbsp;DEV</span>
+              <span class="project__toggle" aria-hidden="true"><i></i><i></i></span>
+            </button>
+            <div class="project__body">
+              <div class="project__body-inner">
+                <p>A reporting SaaS for e-commerce operators that turns messy store data into clear,
+                   decision-ready dashboards — what's selling, what's stalling, and why. Currently in development.</p>
+                <ul class="project__stack mono">
+                  <li>Next.js</li><li>MongoDB</li><li>PostHog</li><li>Vercel</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <!-- 3 · AI & Automation -->
+          <article class="project" data-reveal>
+            <button class="project__head" aria-expanded="false">
+              <span class="project__index mono">03</span>
+              <span class="project__title-wrap">
+                <span class="project__title">AI &amp; Automation Workflows</span>
+                <span class="project__tags mono">AI · AUTOMATION SYSTEMS</span>
+              </span>
+              <span class="project__visual" aria-hidden="true">
+                <svg viewBox="0 0 200 140" fill="none">
+                  <path class="sv-line" d="M44 38 C80 38 80 70 100 70 M44 102 C80 102 80 70 100 70 M116 70 C140 70 140 70 156 70"/>
+                  <rect x="16" y="24" width="28" height="28" rx="8" class="sv-node"/>
+                  <rect x="16" y="88" width="28" height="28" rx="8" class="sv-node"/>
+                  <circle cx="108" cy="70" r="16" class="sv-node-acc"/>
+                  <path class="sv-acc-line" d="M103 70 l4 4 7 -9"/>
+                  <rect x="156" y="56" width="28" height="28" rx="8" class="sv-node"/>
+                  <circle cx="30" cy="38" r="3" class="sv-dot"/>
+                  <circle cx="30" cy="102" r="3" class="sv-dot"/>
+                  <circle cx="170" cy="70" r="3" class="sv-dot"/>
+                </svg>
+              </span>
+              <span class="project__status mono">ONGOING</span>
+              <span class="project__toggle" aria-hidden="true"><i></i><i></i></span>
+            </button>
+            <div class="project__body">
+              <div class="project__body-inner">
+                <p>Automation systems built with n8n, Make and modern AI models — lead handling, content ops,
+                   data syncing and voice agents that quietly remove hours of repetitive work every week.</p>
+                <ul class="project__stack mono">
+                  <li>n8n</li><li>Make</li><li>Claude API</li><li>OpenRouter</li><li>Vapi</li><li>Twilio</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <!-- 4 · NAS Server -->
+          <article class="project" data-reveal>
+            <button class="project__head" aria-expanded="false">
+              <span class="project__index mono">04</span>
+              <span class="project__title-wrap">
+                <span class="project__title">Custom NAS Server</span>
+                <span class="project__tags mono">INFRASTRUCTURE · SELF-HOSTED</span>
+              </span>
+              <span class="project__visual" aria-hidden="true">
+                <svg viewBox="0 0 200 140" fill="none">
+                  <rect x="40" y="16" width="120" height="26" rx="5" class="sv-panel"/>
+                  <rect x="40" y="50" width="120" height="26" rx="5" class="sv-panel"/>
+                  <rect x="40" y="84" width="120" height="26" rx="5" class="sv-panel"/>
+                  <circle cx="56" cy="29" r="4" class="sv-led"/>
+                  <circle cx="56" cy="63" r="4" class="sv-led"/>
+                  <circle cx="56" cy="97" r="4" class="sv-led-dim"/>
+                  <rect x="76" y="25" width="70" height="8" rx="4" class="sv-dim"/>
+                  <rect x="76" y="59" width="56" height="8" rx="4" class="sv-dim"/>
+                  <rect x="76" y="93" width="62" height="8" rx="4" class="sv-dim"/>
+                  <path class="sv-line" d="M100 110 V124 M76 124 H124"/>
+                </svg>
+              </span>
+              <span class="project__status mono">SHIPPED</span>
+              <span class="project__toggle" aria-hidden="true"><i></i><i></i></span>
+            </button>
+            <div class="project__body">
+              <div class="project__body-inner">
+                <p>Self-hosted storage and infrastructure — my own private Google Drive. Built from hardware up:
+                   storage pools, remote access, backups and services running in containers on my own metal.</p>
+                <ul class="project__stack mono">
+                  <li>Docker</li><li>Linux</li><li>Networking</li><li>Ngrok</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <!-- 5 · Life Management App -->
+          <article class="project" data-reveal>
+            <button class="project__head" aria-expanded="false">
+              <span class="project__index mono">05</span>
+              <span class="project__title-wrap">
+                <span class="project__title">Life Management App</span>
+                <span class="project__tags mono">PRODUCT · PERSONAL OS</span>
+              </span>
+              <span class="project__visual" aria-hidden="true">
+                <svg viewBox="0 0 200 140" fill="none">
+                  <rect x="24" y="14" width="152" height="112" rx="8" class="sv-panel"/>
+                  <rect x="36" y="28" width="54" height="6" rx="3" class="sv-acc"/>
+                  <g class="sv-line">
+                    <path d="M40 56 l5 5 8 -9"/><path d="M40 78 l5 5 8 -9"/>
+                  </g>
+                  <rect x="62" y="54" width="70" height="5" rx="2.5" class="sv-dim"/>
+                  <rect x="62" y="76" width="58" height="5" rx="2.5" class="sv-dim"/>
+                  <circle cx="44" cy="100" r="6" class="sv-ring"/>
+                  <rect x="62" y="97" width="64" height="5" rx="2.5" class="sv-dim"/>
+                  <rect x="142" y="44" width="22" height="70" rx="4" class="sv-chip"/>
+                  <rect x="146" y="92" width="14" height="18" rx="2" class="sv-bar"/>
+                  <rect x="146" y="70" width="14" height="18" rx="2" class="sv-acc"/>
+                </svg>
+              </span>
+              <span class="project__status project__status--dev mono">IN&nbsp;DEV</span>
+              <span class="project__toggle" aria-hidden="true"><i></i><i></i></span>
+            </button>
+            <div class="project__body">
+              <div class="project__body-inner">
+                <p>A personal operating system for goals, habits, tasks and time — one calm place to run your life
+                   the way good software runs a business. Currently in development.</p>
+                <ul class="project__stack mono">
+                  <li>Next.js</li><li>Supabase</li><li>Tailwind CSS</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <!-- 6 · Product Experiments -->
+          <article class="project" data-reveal>
+            <button class="project__head" aria-expanded="false">
+              <span class="project__index mono">06</span>
+              <span class="project__title-wrap">
+                <span class="project__title">Product Experiments</span>
+                <span class="project__tags mono">R&amp;D · RAPID VALIDATION</span>
+              </span>
+              <span class="project__visual" aria-hidden="true">
+                <svg viewBox="0 0 200 140" fill="none">
+                  <rect x="14"  y="20" width="50" height="44" rx="6" class="sv-panel"/>
+                  <rect x="75"  y="20" width="50" height="44" rx="6" class="sv-panel"/>
+                  <rect x="136" y="20" width="50" height="44" rx="6" class="sv-node-acc"/>
+                  <rect x="14"  y="76" width="50" height="44" rx="6" class="sv-panel"/>
+                  <rect x="75"  y="76" width="50" height="44" rx="6" class="sv-panel"/>
+                  <rect x="136" y="76" width="50" height="44" rx="6" class="sv-panel"/>
+                  <path class="sv-line" d="M30 42 h18 M91 36 v12 M30 98 h18 M152 92 l9 9 M161 92 l-9 9"/>
+                  <path class="sv-acc-line" d="M153 42 l5 5 9 -10"/>
+                  <circle cx="100" cy="98" r="8" class="sv-ring"/>
+                </svg>
+              </span>
+              <span class="project__status mono">ONGOING</span>
+              <span class="project__toggle" aria-hidden="true"><i></i><i></i></span>
+            </button>
+            <div class="project__body">
+              <div class="project__body-inner">
+                <p>Rapidly built and validated software products — small bets, shipped fast, measured honestly.
+                   Some become products, all of them become lessons.</p>
+                <ul class="project__stack mono">
+                  <li>Whatever ships fastest</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== ABOUT ===================== -->
+    <section class="about section" id="about">
+      <div class="container">
+        <header class="section__head">
+          <p class="section__label mono" data-reveal>02&nbsp;—&nbsp;ABOUT</p>
+        </header>
+
+        <p class="about__statement" id="aboutStatement">
+          I find friction, design practical solutions, and turn ideas into working
+          systems that people actually use.
+        </p>
+
+        <div class="about__grid">
+          <div class="about__media" data-reveal>
+            <div class="about__portrait">
+              <img src="assets/profile-image.jpg" alt="Portrait of Samin Shorif" loading="lazy" />
+            </div>
+            <p class="about__portrait-cap mono">SAMIN&nbsp;SHORIF&nbsp;—&nbsp;IRL</p>
+          </div>
+
+          <div class="about__body">
+            <div class="about__col" data-reveal>
+              <p class="about__text">
+                I enjoy building at the intersection of <strong>software, automation, AI and business
+                operations</strong> — whether it's a full SaaS platform, an internal tool, or an automated
+                workflow that quietly saves a team ten hours a week.
+              </p>
+              <p class="about__text">
+                Outside of building products I'm into <strong>powerlifting, technology and electronics</strong>.
+                I like understanding how systems work, breaking them down to fundamentals,
+                and rebuilding them better — barbells included.
+              </p>
+            </div>
+
+            <div class="about__facts">
+              <div class="fact" data-reveal>
+                <p class="fact__label mono">FOCUS</p>
+                <p class="fact__value">SaaS · AI · Automation · Business Ops</p>
+              </div>
+              <div class="fact" data-reveal>
+                <p class="fact__label mono">EDUCATION</p>
+                <p class="fact__value">B.Sc. CSE — Islamic University<br/>Science — Kushtia Govt. College</p>
+              </div>
+              <div class="fact" data-reveal>
+                <p class="fact__label mono">OFF THE KEYBOARD</p>
+                <p class="fact__value">Powerlifting · Electronics · Systems thinking</p>
+              </div>
+              <div class="fact" data-reveal>
+                <p class="fact__label mono">BASED IN</p>
+                <p class="fact__value">Bangladesh — working worldwide</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== STACK ===================== -->
+    <section class="stack section" id="stack">
+      <div class="container">
+        <header class="section__head">
+          <p class="section__label mono" data-reveal>03&nbsp;—&nbsp;STACK</p>
+          <h2 class="section__title" data-reveal>Tools I think with.<br/><span>Drag the planet.</span></h2>
+        </header>
+
+        <div class="stack__layout">
+          <div class="stack__sphere-wrap" data-reveal>
+            <div class="stack__sphere" id="sphere" data-cursor="DRAG"></div>
+            <p class="stack__hint mono" aria-hidden="true">↻&nbsp;&nbsp;DRAG TO SPIN</p>
+          </div>
+
+          <div class="stack__lists">
+            <div class="stack__group" data-reveal>
+              <p class="stack__group-label mono">PRODUCT</p>
+              <p class="stack__group-items">Next.js, Tailwind CSS, Supabase, MongoDB, Vercel, Netlify</p>
+            </div>
+            <div class="stack__group" data-reveal>
+              <p class="stack__group-label mono">AI</p>
+              <p class="stack__group-items">Claude API, OpenRouter, Hugging Face, Pinecone, LM Studio</p>
+            </div>
+            <div class="stack__group" data-reveal>
+              <p class="stack__group-label mono">AUTOMATION</p>
+              <p class="stack__group-items">n8n, Make, Zapier, Vapi, Twilio</p>
+            </div>
+            <div class="stack__group" data-reveal>
+              <p class="stack__group-label mono">INFRA &amp; OPS</p>
+              <p class="stack__group-items">Docker, Google Cloud, Git, GitHub, WSL, Ngrok</p>
+            </div>
+            <div class="stack__group" data-reveal>
+              <p class="stack__group-label mono">WORKFLOW</p>
+              <p class="stack__group-items">Cursor, VS Code, Linear, Notion, PostHog, Postman</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CONTACT ===================== -->
+    <section class="contact section" id="contact">
+      <div class="container">
+        <header class="section__head">
+          <p class="section__label mono" data-reveal>04&nbsp;—&nbsp;CONTACT</p>
+        </header>
+
+        <h2 class="contact__title">
+          <span class="contact__line" data-split-line>LET'S BUILD</span>
+          <span class="contact__line contact__line--accent" data-split-line>SOMETHING</span>
+          <span class="contact__line" data-split-line>USEFUL</span>
+        </h2>
+
+        <p class="contact__note" data-reveal>
+          New product? Existing business that needs less friction? An AI or automation
+          opportunity you want explored? Tell me what's slowing you down — I'll tell you
+          honestly whether software can fix it.
+        </p>
+
+        <div class="contact__actions" data-reveal>
+          <a class="btn btn--big btn--fill" href="mailto:saminshorif.ai@gmail.com" data-magnetic>
+            <span class="btn__text">saminshorif.ai@gmail.com</span><span class="btn__arrow">↗</span>
+          </a>
+          <button class="btn btn--big" id="copyEmail" data-magnetic>
+            <span class="btn__text" id="copyEmailText">Copy email</span>
+          </button>
+        </div>
+
+        <div class="contact__socials" data-reveal>
+          <a href="https://www.linkedin.com/in/samin-shorif-a72836346" target="_blank" rel="noopener" data-magnetic>LinkedIn&nbsp;↗</a>
+          <a href="https://www.facebook.com/samin.shorif.2025" target="_blank" rel="noopener" data-magnetic>Facebook&nbsp;↗</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p class="mono">©2026 SAMIN SHORIF</p>
+      <p class="mono footer__time">LET'S&nbsp;GRIND</p>
+      <button class="footer__top mono" data-scroll-to="#top">BACK TO TOP ↑</button>
+    </div>
+  </footer>
+
+  <!-- ===================== SCRIPTS ===================== -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.149.0/three.min.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
