@@ -701,7 +701,8 @@ html.hide-native-cursor * { cursor: none !important; }
 }
 .contact__title {
   font-family: var(--font-display); font-weight: 700;
-  font-size: clamp(52px, 10.5vw, 168px);
+  /* low floor so the longest line (MEANINGFUL) still fits a 320px phone */
+  font-size: clamp(30px, 10.5vw, 168px);
   line-height: 0.95;
   text-transform: uppercase;
   letter-spacing: -0.01em;
@@ -717,7 +718,8 @@ html.hide-native-cursor * { cursor: none !important; }
   margin-bottom: clamp(36px, 4vw, 56px);
 }
 
-.contact__actions { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: clamp(40px, 5vw, 64px); }
+.contact__actions { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+.contact__email { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: clamp(40px, 5vw, 64px); }
 
 .contact__socials { display: flex; gap: 28px; }
 .contact__socials a {
@@ -811,6 +813,7 @@ html.hide-native-cursor * { cursor: none !important; }
   .sphere-item img { width: 20px; height: 20px; }
   .btn--big { padding: 18px 24px; font-size: 11px; }
   .contact__socials { flex-wrap: wrap; gap: 18px; }
+  .contact__email .btn { flex: 1 1 auto; justify-content: center; }
   .footer__inner { justify-content: center; text-align: center; }
 }
 

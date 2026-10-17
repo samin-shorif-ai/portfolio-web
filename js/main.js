@@ -195,20 +195,30 @@
     .to(menu, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.7, ease: "expo.inOut" })
     .to(".menu__links a", { y: 0, opacity: 1, duration: 0.7, stagger: 0.06, ease: "expo.out" }, "-=0.25");
 
-  function toggleMenu(force) {
-    menuOpen = typeof force === "boolean" ? force : !menuOpen;
+  // fromHistory = the browser's back/forward button caused this, so history is already right
+  function toggleMenu(force, fromHistory) {
+    var next = typeof force === "boolean" ? force : !menuOpen;
+    if (next === menuOpen) return;
+    menuOpen = next;
     burger.classList.toggle("is-open", menuOpen);
     burger.setAttribute("aria-expanded", String(menuOpen));
     menu.setAttribute("aria-hidden", String(!menuOpen));
     if (menuOpen) {
       menuTl.timeScale(1).play();
       if (lenis) lenis.stop();
+      // the open menu gets its own history entry, so the phone's back button closes it
+      if (!fromHistory) history.pushState({ menu: true }, "");
     } else {
       menuTl.timeScale(1.5).reverse();
       if (lenis) lenis.start();
+      // closed from inside the page: drop that entry too, or the next back press does nothing
+      if (!fromHistory && history.state && history.state.menu) history.back();
     }
   }
   burger.addEventListener("click", function () { toggleMenu(); });
+  window.addEventListener("popstate", function (e) {
+    toggleMenu(!!(e.state && e.state.menu), true);
+  });
 
   /* ============================================================
      ANCHOR SCROLLING
