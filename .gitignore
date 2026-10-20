@@ -1,1 +1,9 @@
+# Private notes: the repo is public and GitHub Pages publishes every file in it
 feedback.md
+info.md
+
+# Local experiments (black-hole prototype etc.), kept off the site and off GitHub
+lab/
+
+# Original photo; the site uses the smaller assets/headshot.jpg
+assets/headshot.png

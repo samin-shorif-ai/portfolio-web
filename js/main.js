@@ -36,7 +36,17 @@
     var target = sel === "#top" ? 0 : document.querySelector(sel);
     if (target === null) return;
     if (lenis) {
-      lenis.scrollTo(target, { duration: 1.4 });
+      lenis.scrollTo(target, {
+        duration: 1.4,
+        // safety net: if something above the target changed height mid-scroll
+        // (an image or font arriving late), finish the trip instead of stopping short
+        onComplete: function () {
+          if (target === 0) return;
+          var off = target.getBoundingClientRect().top;
+          var atBottom = lenis.scroll >= lenis.limit - 2;
+          if (Math.abs(off) > 2 && !(off > 0 && atBottom)) lenis.scrollTo(target, { duration: 0.6 });
+        }
+      });
     } else if (target === 0) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
@@ -95,7 +105,6 @@
   }
 
   var preloader = document.getElementById("preloader");
-  var countEl = document.getElementById("preloaderCount");
 
   function finishLoad() {
     document.body.removeAttribute("data-loading");
@@ -111,22 +120,14 @@
     gsap.set("[data-hero-fade]", { opacity: 1, y: 0 });
     if (lenis) lenis.start();
   } else {
-    var counter = { v: 0 };
-    var loadTl = gsap.timeline({
-      onComplete: function () {
-        preloader.style.display = "none";
-        finishLoad();
-      }
-    });
-    loadTl
-      .to(".preloader__name", { y: 0, yPercent: 0, duration: 0.9, ease: "expo.out", startAt: { yPercent: 110 } })
-      .to(".preloader__tag", { opacity: 1, duration: 0.5 }, "-=0.4")
-      .to(counter, {
-        v: 100, duration: 1.5, ease: "power2.inOut",
-        onUpdate: function () { countEl.textContent = Math.round(counter.v); }
-      }, 0)
-      .to(".preloader__inner, .preloader__count", { opacity: 0, duration: 0.35, ease: "power1.out" }, "+=0.1")
-      .to(preloader, { yPercent: -100, duration: 0.85, ease: "expo.inOut" }, "-=0.1");
+    // ~1.25s total: name + line in, a short hold, curtain up.
+    // The hero starts animating while the curtain is still lifting, so nothing waits on it.
+    gsap.timeline({ onComplete: function () { preloader.style.display = "none"; } })
+      .to(".preloader__name", { y: 0, yPercent: 0, duration: 0.6, ease: "expo.out", startAt: { yPercent: 110 } })
+      .to(".preloader__tag", { opacity: 1, duration: 0.35 }, 0.1)
+      .to(".preloader__inner", { opacity: 0, duration: 0.25, ease: "power1.out" }, 0.75)
+      .to(preloader, { yPercent: -100, duration: 0.5, ease: "expo.inOut" }, 0.75)
+      .add(finishLoad, 0.95);
   }
 
   /* ============================================================
@@ -201,7 +202,9 @@
     if (next === menuOpen) return;
     menuOpen = next;
     burger.classList.toggle("is-open", menuOpen);
+    nav.classList.toggle("is-menu-open", menuOpen);
     burger.setAttribute("aria-expanded", String(menuOpen));
+    burger.setAttribute("aria-label", menuOpen ? "Close menu" : "Open menu");
     menu.setAttribute("aria-hidden", String(!menuOpen));
     if (menuOpen) {
       menuTl.timeScale(1).play();
@@ -617,26 +620,39 @@
   }
 
   /* ============================================================
-     COPY EMAIL
+     EMAIL — phones open the mail app (mailto works there);
+     computers copy the address, because a mailto link silently does
+     nothing on a computer that has no mail app set up (most Gmail-in-browser users)
      ============================================================ */
-  var copyBtn = document.getElementById("copyEmail");
-  var copyText = document.getElementById("copyEmailText");
-  if (copyBtn) {
-    copyBtn.addEventListener("click", function () {
+  var emailBtn = document.getElementById("emailBtn");
+  var emailText = document.getElementById("emailText");
+  if (emailBtn && !isTouch) {
+    var emailTimer;
+    emailBtn.title = "Copy email address";
+    emailBtn.addEventListener("click", function (e) {
+      e.preventDefault();
       function done() {
-        copyText.textContent = "Copied ✓";
-        setTimeout(function () { copyText.textContent = "Copy email"; }, 2000);
+        emailBtn.style.minWidth = emailBtn.offsetWidth + "px"; // keep the pill's width steady
+        emailText.textContent = "Copied to clipboard ✓";
+        clearTimeout(emailTimer);
+        emailTimer = setTimeout(function () {
+          emailText.textContent = EMAIL;
+          emailBtn.style.minWidth = "";
+        }, 2200);
       }
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(EMAIL).then(done).catch(done);
+      // copying failed (old browser, blocked permission): fall back to the mail app
+      function fallback() { window.location.href = emailBtn.href; }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(EMAIL).then(done, fallback);
       } else {
         var ta = document.createElement("textarea");
         ta.value = EMAIL;
         document.body.appendChild(ta);
         ta.select();
-        try { document.execCommand("copy"); } catch (e) {}
+        var ok = false;
+        try { ok = document.execCommand("copy"); } catch (err) {}
         document.body.removeChild(ta);
-        done();
+        if (ok) done(); else fallback();
       }
     });
   }
