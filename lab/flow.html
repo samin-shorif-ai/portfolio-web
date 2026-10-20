@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Lab — Flowing particles</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="lab.css" />
+</head>
+<body class="lab-fullscreen" data-fx="flow">
+
+  <!-- same markup as the live hero (index.html), so the effect is judged behind the real text -->
+  <section class="hero" id="hero">
+    <canvas class="hero__canvas" id="heroCanvas" aria-hidden="true"></canvas>
+    <div class="hero__grain" aria-hidden="true"></div>
+    <div class="hero__top container">
+      <p class="hero__meta mono">SOFTWARE THAT RUNS REAL BUSINESSES</p>
+      <p class="hero__meta mono">BUSINESS-MINDED&nbsp;&nbsp;·&nbsp;&nbsp;AI-NATIVE</p>
+    </div>
+    <div class="hero__center container">
+      <p class="hero__role mono"><span class="hero__role-dot"></span>PRODUCT&nbsp;ENGINEER</p>
+      <h1 class="hero__title" aria-label="Samin Shorif">
+        <span class="hero__line"><span>SAMIN</span></span>
+        <span class="hero__line hero__line--outline"><span>SHORIF</span></span>
+      </h1>
+      <div class="hero__sub">
+        <p class="hero__desc">I find the problems that cost businesses time and money, and ship the software
+          that fixes them — like GymDesk OS, now used by 4 gyms to manage 700+ members.</p>
+        <div class="hero__actions">
+          <a class="btn btn--fill" href="../#projects"><span class="btn__text">See projects</span><span class="btn__arrow">↓</span></a>
+          <a class="btn" href="../#contact"><span class="btn__text">Start a conversation</span><span class="btn__arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="hero__bottom container">
+      <p class="mono">SAAS&nbsp;·&nbsp;AI&nbsp;·&nbsp;AUTOMATION&nbsp;·&nbsp;OPS</p>
+      <div class="hero__scroll" aria-hidden="true"><span class="mono">SCROLL</span><span class="hero__scroll-line"><i></i></span></div>
+      <p class="mono hero__grind">LET'S&nbsp;GRIND&nbsp;↗</p>
+    </div>
+  </section>
+
+  <p class="lab-hint" data-mouse="Move the mouse — the stream parts around it"
+     data-touch="Touch and drag — the stream parts around your finger"></p>
+
+  <script src="lab.js"></script>
+  <script>
+  /* ============================================================
+     FLOWING PARTICLES
+     Particles ride a smooth, swirling current (the curl of a "stream function",
+     so the flow never bunches up or leaves holes) drifting left to right.
+     The cursor or finger is a rock in the stream: the flow around it is the
+     textbook potential flow around a cylinder, so the stream parts in front,
+     speeds up along the sides and closes again behind it.
+     ============================================================ */
+  (function () {
+    "use strict";
+    var canvas = document.getElementById("heroCanvas");
+    var hero = document.getElementById("hero");
+    var ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    var isTouch = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+
+    var W = 0, H = 0, dpr = 1;
+    var parts = [];
+
+    function spawn(p) {
+      p.x = Math.random() * W; p.y = Math.random() * H;
+      p.px = p.x; p.py = p.y;
+      p.age = 0; p.life = 3 + Math.random() * 6;
+      p.speed = 0; p.fresh = true;
+      return p;
+    }
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = hero.clientWidth; H = hero.clientHeight;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      var target = Math.min(2600, Math.round((W * H) / (isTouch ? 250 : 380)));
+      while (parts.length < target) parts.push(spawn({}));
+      parts.length = target;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    /* ---------- the current: u = ∂ψ/∂y, v = −∂ψ/∂x ---------- */
+    var S = 260, SPEED = 0.5;   // feature size in px, overall pace
+    var f = { u: 0, v: 0 };
+    function flow(x, y, t) {
+      var X = x / S, Y = y / S;
+      var a = 1.1 * X + 0.18 * t, b = 1.4 * Y - 0.13 * t;
+      var c = 0.7 * X + 0.9 * Y + 0.11 * t;
+      var d = 1.9 * X - 1.5 * Y - 0.23 * t;
+      // ψ = 0.32·Y + 0.5·sin a·sin b + 0.35·sin c + 0.2·sin d
+      var u = 0.32 + 0.7 * Math.sin(a) * Math.cos(b) + 0.315 * Math.cos(c) - 0.3 * Math.cos(d);
+      var v = -(0.55 * Math.cos(a) * Math.sin(b) + 0.245 * Math.cos(c) + 0.38 * Math.cos(d));
+      f.u = u * S * SPEED; f.v = v * S * SPEED;
+    }
+
+    /* ---------- the rock (cursor / finger) ---------- */
+    var A_MAX = isTouch ? 58 : 72;
+    var rock = { x: -999, y: -999, tx: -999, ty: -999, a: 0, ta: 0, vx: 0, vy: 0 };
+    function local(e) {
+      var rect = canvas.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+    function place(e, snap) {
+      var p = local(e);
+      rock.tx = p.x; rock.ty = p.y;
+      if (snap || rock.a < 2) { rock.x = p.x; rock.y = p.y; rock.vx = 0; rock.vy = 0; }
+      rock.ta = A_MAX;
+    }
+    if (isTouch) {
+      var touching = false;
+      window.addEventListener("pointerdown", function (e) {
+        if (window.labIgnore && window.labIgnore(e)) return;
+        touching = true; place(e, true);
+      });
+      window.addEventListener("pointermove", function (e) { if (touching) place(e, false); });
+      var lift = function () { touching = false; rock.ta = 0; };
+      window.addEventListener("pointerup", lift);
+      window.addEventListener("pointercancel", lift);
+    } else {
+      window.addEventListener("pointermove", function (e) { place(e, false); });
+      document.documentElement.addEventListener("mouseleave", function () { rock.ta = 0; });
+    }
+
+    /* ---------- loop ---------- */
+    var AC = "214, 251, 65";
+    var t0 = performance.now(), last = t0;
+    function frame(now) {
+      var dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      var t = (now - t0) / 1000;
+
+      // the rock glides after the pointer and grows/shrinks smoothly
+      var nx = rock.x + (rock.tx - rock.x) * Math.min(1, dt * 14);
+      var ny = rock.y + (rock.ty - rock.y) * Math.min(1, dt * 14);
+      if (dt > 0) { rock.vx = (nx - rock.x) / dt; rock.vy = (ny - rock.y) / dt; }
+      rock.x = nx; rock.y = ny;
+      rock.a += (rock.ta - rock.a) * Math.min(1, dt * 6);
+
+      var a = rock.a, a2 = a * a, reach2 = 25 * a2;
+      for (var i = 0; i < parts.length; i++) {
+        var p = parts[i];
+        flow(p.x, p.y, t);
+        var u = f.u, v = f.v;
+        if (a > 1) {
+          var dx = p.x - rock.x, dy = p.y - rock.y, r2 = dx * dx + dy * dy;
+          if (r2 < reach2) {
+            if (r2 < a2) {
+              // inside the rock: slide out to its surface, with no streak across it
+              var rr = Math.sqrt(r2) || 1, k = a / rr;
+              p.x = rock.x + dx * k; p.y = rock.y + dy * k;
+              p.px = p.x; p.py = p.y;
+              dx = p.x - rock.x; dy = p.y - rock.y; r2 = a2;
+            }
+            // flow around a cylinder, computed in the rock's own frame (so a moving rock pushes water)
+            var ux = u - rock.vx, uy = v - rock.vy;
+            var pp = dx * dx - dy * dy, qq = -2 * dx * dy, r4 = r2 * r2;
+            u -= a2 * (ux * pp - uy * qq) / r4;
+            v += a2 * (ux * qq + uy * pp) / r4;
+          }
+        }
+        p.px = p.x; p.py = p.y;
+        p.x += u * dt; p.y += v * dt;
+        p.speed = Math.sqrt(u * u + v * v);
+        p.age += dt;
+        if (p.x > W + 20) { p.x = -10; p.y = Math.random() * H; p.px = p.x; p.py = p.y; p.age = 0; p.fresh = true; }
+        else if (p.x < -20 || p.y < -20 || p.y > H + 20 || p.age > p.life) spawn(p);
+      }
+
+      // fade the previous frame a little: that's what draws the trails
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = "rgba(0,0,0," + (1 - Math.pow(0.92, dt * 60)).toFixed(3) + ")";
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = "source-over";
+      ctx.globalAlpha = Math.min(1, t / 1.5);
+      ctx.lineWidth = 1.15;
+      ctx.lineCap = "round";
+
+      var paths = [new Path2D(), new Path2D(), new Path2D()];   // dim, mid, bright
+      for (i = 0; i < parts.length; i++) {
+        p = parts[i];
+        if (p.fresh) { p.fresh = false; continue; }
+        var life = Math.min(1, p.age / 0.5, (p.life - p.age) / 0.8);
+        var e = life * (0.45 + Math.min(p.speed / 220, 0.55));
+        var path = paths[e < 0.4 ? 0 : e < 0.7 ? 1 : 2];
+        path.moveTo(p.px, p.py);
+        path.lineTo(p.x, p.y);
+      }
+      ctx.strokeStyle = "rgba(" + AC + ",0.22)"; ctx.stroke(paths[0]);
+      ctx.strokeStyle = "rgba(" + AC + ",0.45)"; ctx.stroke(paths[1]);
+      ctx.strokeStyle = "rgba(" + AC + ",0.8)";  ctx.stroke(paths[2]);
+      ctx.globalAlpha = 1;
+
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    // for headless checks only
+    window.labFlow = { count: function () { return parts.length; }, rock: rock };
+  })();
+  </script>
+</body>
+</html>

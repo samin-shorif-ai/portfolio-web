@@ -2,8 +2,14 @@
 feedback.md
 info.md
 
-# Local experiments (black-hole prototype etc.), kept off the site and off GitHub
-lab/
+# lab/ is public on purpose (hero previews to test on a phone), except the black-hole prototype and its reference images
+lab/black-hole.html
+lab/*.webp
 
 # Original photo; the site uses the smaller assets/headshot.jpg
 assets/headshot.png
+
+# Raw camera originals: huge, and the DSLR / Motorola files carry GPS coordinates in their metadata.
+# Only web-ready, metadata-stripped copies should ever be committed.
+assets/DSC_*
+assets/IMG_*

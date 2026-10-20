@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Lab — Hero previews</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .lab-index { padding-block: clamp(64px, 10vw, 140px); }
+    .lab-index .section__title { font-size: clamp(36px, 6vw, 84px); }
+    .lab-list { list-style: none; margin-top: clamp(40px, 5vw, 72px); border-top: 1px solid var(--line); }
+    .lab-list a {
+      display: grid; grid-template-columns: 48px 1fr 32px; gap: 8px 20px;
+      align-items: baseline;
+      padding-block: clamp(22px, 3vw, 34px);
+      border-bottom: 1px solid var(--line);
+    }
+    .lab-list strong {
+      font-family: var(--font-display); font-weight: 600;
+      font-size: clamp(24px, 3.2vw, 44px); line-height: 1.05; text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .lab-list small { grid-column: 2; color: var(--ink-dim); font-size: 15px; max-width: 620px; }
+    .lab-list em { font-style: normal; color: var(--accent); justify-self: end; }
+    .lab-list a:hover strong { color: var(--accent); }
+    .lab-back { margin-top: 40px; }
+    .lab-back a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main class="lab-index container">
+    <p class="section__label mono">LAB&nbsp;—&nbsp;HERO PREVIEWS</p>
+    <h1 class="section__title">Three ideas<br /><span>for the hero.</span></h1>
+    <p class="section__note">Each one runs behind the real hero text, on phones too. Tap “Text” in the top bar to hide
+      the text and see the effect on its own. None of these are on the live site yet.</p>
+
+    <ol class="lab-list">
+      <li><a href="waves.html">
+        <span class="mono">01</span><strong>Interfering waves</strong><em>↗</em>
+        <small>Today's wave plus real wave physics. Tap to drop a wave source; two sources at the same frequency
+          make an interference pattern. Move the mouse or drag a finger to leave a wake.</small>
+      </a></li>
+      <li><a href="flow.html">
+        <span class="mono">02</span><strong>Flowing particles</strong><em>↗</em>
+        <small>Lime particles ride a swirling current. Your cursor or finger is a rock in the stream: the flow
+          parts in front of it and closes behind it.</small>
+      </a></li>
+      <li><a href="name.html">
+        <span class="mono">03</span><strong>Name from particles</strong><em>↗</em>
+        <small>The particles assemble into SAMIN SHORIF, get pushed by your cursor or finger, and break apart
+          as you scroll down — then rebuild when you scroll back up.</small>
+      </a></li>
+    </ol>
+
+    <p class="lab-back mono"><a href="../">← Back to samin.cloud</a></p>
+  </main>
+</body>
+</html>

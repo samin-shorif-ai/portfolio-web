@@ -9,6 +9,16 @@
   var isTouch = window.matchMedia("(hover: none), (pointer: coarse)").matches;
   var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // named PostHog events, so the dashboard reads "contact_click: calendly" instead of raw clicks.
+  // Safe when analytics is off (local file, ?notrack, ad blocker): the call just does nothing.
+  function track(name, props) {
+    try { if (window.posthog && window.posthog.capture) window.posthog.capture(name, props); } catch (err) {}
+  }
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest && e.target.closest("[data-track]");
+    if (el) track("contact_click", { channel: el.getAttribute("data-track") });
+  });
+
   /* ---------- graceful degradation if CDNs fail ---------- */
   if (!window.gsap) {
     document.body.removeAttribute("data-loading");
@@ -120,14 +130,14 @@
     gsap.set("[data-hero-fade]", { opacity: 1, y: 0 });
     if (lenis) lenis.start();
   } else {
-    // ~1.25s total: name + line in, a short hold, curtain up.
-    // The hero starts animating while the curtain is still lifting, so nothing waits on it.
+    // ~2s total: name rises (0.9s), the line fades in under it, a short hold so it can be read,
+    // then the curtain lifts. The hero starts animating while the curtain is still moving.
     gsap.timeline({ onComplete: function () { preloader.style.display = "none"; } })
-      .to(".preloader__name", { y: 0, yPercent: 0, duration: 0.6, ease: "expo.out", startAt: { yPercent: 110 } })
-      .to(".preloader__tag", { opacity: 1, duration: 0.35 }, 0.1)
-      .to(".preloader__inner", { opacity: 0, duration: 0.25, ease: "power1.out" }, 0.75)
-      .to(preloader, { yPercent: -100, duration: 0.5, ease: "expo.inOut" }, 0.75)
-      .add(finishLoad, 0.95);
+      .to(".preloader__name", { y: 0, yPercent: 0, duration: 0.9, ease: "expo.out", startAt: { yPercent: 110 } })
+      .to(".preloader__tag", { opacity: 1, duration: 0.6, ease: "power2.out" }, 0.3)
+      .to(".preloader__inner", { opacity: 0, duration: 0.3, ease: "power1.out" }, 1.35)
+      .to(preloader, { yPercent: -100, duration: 0.65, ease: "expo.inOut" }, 1.35)
+      .add(finishLoad, 1.6);
   }
 
   /* ============================================================
@@ -190,10 +200,16 @@
   var menu = document.getElementById("menu");
   var menuOpen = false;
 
-  var menuTl = gsap.timeline({ paused: true });
+  // the panel grows down out of the (now solid) bar; power3 starts moving sooner than expo,
+  // so there's no dead moment between the tap and the menu appearing
+  var menuTl = gsap.timeline({
+    paused: true,
+    // give the bar its normal see-through look back only once the menu is fully gone
+    onReverseComplete: function () { nav.classList.remove("is-menu-open"); }
+  });
   menuTl
     .set(menu, { visibility: "visible" })
-    .to(menu, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.7, ease: "expo.inOut" })
+    .to(menu, { clipPath: "inset(0% 0% 0% 0%)", duration: 0.7, ease: "power3.inOut" })
     .to(".menu__links a", { y: 0, opacity: 1, duration: 0.7, stagger: 0.06, ease: "expo.out" }, "-=0.25");
 
   // fromHistory = the browser's back/forward button caused this, so history is already right
@@ -202,7 +218,7 @@
     if (next === menuOpen) return;
     menuOpen = next;
     burger.classList.toggle("is-open", menuOpen);
-    nav.classList.toggle("is-menu-open", menuOpen);
+    if (menuOpen) nav.classList.add("is-menu-open"); // removed by menuTl when the close finishes
     burger.setAttribute("aria-expanded", String(menuOpen));
     burger.setAttribute("aria-label", menuOpen ? "Close menu" : "Open menu");
     menu.setAttribute("aria-hidden", String(!menuOpen));
@@ -317,6 +333,7 @@
       } else {
         p.classList.add("is-open");
         head.setAttribute("aria-expanded", "true");
+        track("project_opened", { project: p.querySelector(".project__title").textContent.trim() });
         gsap.to(body, {
           height: "auto", duration: 0.65, ease: "power3.inOut",
           onComplete: function () { ScrollTrigger.refresh(); }
@@ -512,9 +529,11 @@
 
   /* ============================================================
      HERO — Three.js particle wave
+     three.js is ~600 KB, so it no longer blocks the page: it downloads in the background
+     (started at the bottom of this file) and the wave fades in whenever it arrives.
      ============================================================ */
-  (function initThree() {
-    if (!window.THREE || reduceMotion) return;
+  function initThree() {
+    if (!window.THREE) return;
     var canvas = document.getElementById("heroCanvas");
     var hero = document.getElementById("hero");
     if (!canvas) return;
@@ -552,11 +571,12 @@
       color: 0xd6fb41,
       size: 0.05,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0,              // faded in below, so a late arrival doesn't pop in
       sizeAttenuation: true,
       depthWrite: false
     });
     scene.add(new THREE.Points(geo, mat));
+    gsap.to(mat, { opacity: 0.5, duration: 1.6, ease: "power2.out" });
 
     var mouseX = 0;
     if (!isTouch) {
@@ -607,7 +627,15 @@
       opacity: 0,
       scrollTrigger: { trigger: hero, start: "40% top", end: "bottom top", scrub: true }
     });
-  })();
+  }
+
+  if (!reduceMotion) {
+    var threeScript = document.createElement("script");
+    threeScript.src = "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.149.0/three.min.js";
+    threeScript.async = true;
+    threeScript.onload = initThree;
+    document.head.appendChild(threeScript);
+  }
 
   /* ============================================================
      HERO PARALLAX ON SCROLL

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Lab — Interfering waves</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="lab.css" />
+</head>
+<body class="lab-fullscreen" data-fx="waves">
+
+  <!-- same markup as the live hero (index.html), so the effect is judged behind the real text -->
+  <section class="hero" id="hero">
+    <canvas class="hero__canvas" id="heroCanvas" aria-hidden="true"></canvas>
+    <div class="hero__grain" aria-hidden="true"></div>
+    <div class="hero__top container">
+      <p class="hero__meta mono">SOFTWARE THAT RUNS REAL BUSINESSES</p>
+      <p class="hero__meta mono">BUSINESS-MINDED&nbsp;&nbsp;·&nbsp;&nbsp;AI-NATIVE</p>
+    </div>
+    <div class="hero__center container">
+      <p class="hero__role mono"><span class="hero__role-dot"></span>PRODUCT&nbsp;ENGINEER</p>
+      <h1 class="hero__title" aria-label="Samin Shorif">
+        <span class="hero__line"><span>SAMIN</span></span>
+        <span class="hero__line hero__line--outline"><span>SHORIF</span></span>
+      </h1>
+      <div class="hero__sub">
+        <p class="hero__desc">I find the problems that cost businesses time and money, and ship the software
+          that fixes them — like GymDesk OS, now used by 4 gyms to manage 700+ members.</p>
+        <div class="hero__actions">
+          <a class="btn btn--fill" href="../#projects"><span class="btn__text">See projects</span><span class="btn__arrow">↓</span></a>
+          <a class="btn" href="../#contact"><span class="btn__text">Start a conversation</span><span class="btn__arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="hero__bottom container">
+      <p class="mono">SAAS&nbsp;·&nbsp;AI&nbsp;·&nbsp;AUTOMATION&nbsp;·&nbsp;OPS</p>
+      <div class="hero__scroll" aria-hidden="true"><span class="mono">SCROLL</span><span class="hero__scroll-line"><i></i></span></div>
+      <p class="mono hero__grind">LET'S&nbsp;GRIND&nbsp;↗</p>
+    </div>
+  </section>
+
+  <p class="lab-hint" data-mouse="Click to drop a wave source · move the mouse for a wake"
+     data-touch="Tap to drop a wave source · drag for a wake"></p>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.149.0/three.min.js"></script>
+  <script src="lab.js"></script>
+  <script>
+  /* ============================================================
+     INTERFERING WAVES
+     Today's hero wave, plus a real wave simulation on the same grid of particles
+     (the discrete 2D wave equation). A tap drops a source that keeps oscillating;
+     two sources at the same frequency add up into a real interference pattern:
+     bright where crests meet crests, still where a crest meets a trough.
+     Moving the mouse (or dragging a finger) pushes the surface and leaves a wake.
+     ============================================================ */
+  (function () {
+    "use strict";
+    if (!window.THREE) return;
+    var canvas = document.getElementById("heroCanvas");
+    var hero = document.getElementById("hero");
+    var isTouch = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+
+    var renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: false });
+    } catch (e) { return; }
+
+    var scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x0d0e0c, 10, 30);
+    var camera = new THREE.PerspectiveCamera(55, 1, 0.1, 60);
+    camera.position.set(0, 5.4, 13);
+
+    // same grid, camera and fog as the live hero
+    var isSmall = window.innerWidth < 820;
+    var COLS = isSmall ? 70 : 120;
+    var ROWS = isSmall ? 42 : 64;
+    var SPACING = 0.6;
+    var N = COLS * ROWS;
+
+    var positions = new Float32Array(N * 3);
+    var colors = new Float32Array(N * 3);
+    var r, c, i;
+    for (r = 0, i = 0; r < ROWS; r++) {
+      for (c = 0; c < COLS; c++, i++) {
+        positions[i * 3] = (c - COLS / 2) * SPACING;
+        positions[i * 3 + 2] = 4 - r * SPACING;
+      }
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    var mat = new THREE.PointsMaterial({
+      size: 0.07, vertexColors: true, transparent: true, opacity: 0,
+      sizeAttenuation: true, depthWrite: false
+    });
+    scene.add(new THREE.Points(geo, mat));
+
+    /* ---------- the simulation ---------- */
+    var STEP = 1 / 60;                                 // fixed physics step, same on 60 Hz and 120 Hz screens
+    var C2 = 0.12;                                     // (speed·dt/cell)², must stay < 0.5 or it blows up
+    var OMEGA = 2 * Math.PI * (isSmall ? 2.8 : 2.1);   // phones see less of the grid, so shorter waves
+    var GAIN = 2.2;                                    // simulation height → world units
+    var AMBIENT = 0.45;                                // how much of today's gentle wave stays under the interference
+    var h = new Float32Array(N), hPrev = new Float32Array(N), hNext = new Float32Array(N);
+
+    // absorbing border: waves fade out at the grid's edge instead of bouncing back in
+    var keep = new Float32Array(N);
+    var EDGE = 9;
+    for (r = 0; r < ROWS; r++) {
+      for (c = 0; c < COLS; c++) {
+        var d = Math.min(c, COLS - 1 - c, r, ROWS - 1 - r);
+        var s = d >= EDGE ? 0 : 1 - d / EDGE;
+        keep[r * COLS + c] = 0.998 - 0.07 * s * s;
+      }
+    }
+
+    var simT = 0;
+    var sources = [];   // oscillating sources dropped by a tap/click (max 3)
+    function dropSource(gc, gr) {
+      sources.push({ c: gc, r: gr, t0: simT, life: 9 });
+      if (sources.length > 3) sources.shift();
+    }
+
+    // push the surface with a soft round footprint (no single-cell spikes)
+    function splash(gc, gr, amount) {
+      var ci = Math.round(gc), ri = Math.round(gr);
+      for (var dr = -3; dr <= 3; dr++) {
+        for (var dc = -3; dc <= 3; dc++) {
+          var cc = ci + dc, rr = ri + dr;
+          if (cc < 1 || cc > COLS - 2 || rr < 1 || rr > ROWS - 2) continue;
+          // wider footprint = more energy pushed into the water without a sharp spike at the source
+          var g = Math.exp(-((cc - gc) * (cc - gc) + (rr - gr) * (rr - gr)) / 3.4);
+          h[rr * COLS + cc] += amount * g;
+        }
+      }
+    }
+
+    function step() {
+      for (var k = 0; k < sources.length; k++) {
+        var src = sources[k], age = simT - src.t0;
+        if (age > src.life) { sources.splice(k--, 1); continue; }
+        var env = Math.min(1, age / 0.4) * Math.min(1, (src.life - age) / 1.5);
+        splash(src.c, src.r, 0.05 * env * Math.sin(OMEGA * age));
+      }
+      for (var y = 1; y < ROWS - 1; y++) {
+        var row = y * COLS;
+        for (var x = 1; x < COLS - 1; x++) {
+          var j = row + x;
+          var lap = h[j - 1] + h[j + 1] + h[j - COLS] + h[j + COLS] - 4 * h[j];
+          hNext[j] = (2 * h[j] - hPrev[j] + C2 * lap) * keep[j];
+        }
+      }
+      var tmp = hPrev; hPrev = h; h = hNext; hNext = tmp;
+      simT += STEP;
+    }
+
+    /* ---------- input: screen point → grid cell ---------- */
+    var ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+    var plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
+    function toGrid(x, y) {
+      var rect = canvas.getBoundingClientRect();
+      ndc.set(((x - rect.left) / rect.width) * 2 - 1, -((y - rect.top) / rect.height) * 2 + 1);
+      ray.setFromCamera(ndc, camera);
+      if (!ray.ray.intersectPlane(plane, hit)) return null;   // above the horizon
+      var gc = hit.x / SPACING + COLS / 2, gr = (4 - hit.z) / SPACING;
+      if (gc < 3 || gc > COLS - 4 || gr < 3 || gr > ROWS - 4) return null;
+      return { c: gc, r: gr };
+    }
+
+    var mouseX = 0, last = null, down = false, moved = 0, lastUser = -100;
+    window.addEventListener("pointerdown", function (e) {
+      if (window.labIgnore && window.labIgnore(e)) return;
+      down = true; moved = 0;
+      last = toGrid(e.clientX, e.clientY);
+    });
+    window.addEventListener("pointermove", function (e) {
+      if (!isTouch) mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      var g = toGrid(e.clientX, e.clientY);
+      if (!g) { last = null; return; }
+      if ((!isTouch || down) && last) {
+        var dist = Math.hypot(g.c - last.c, g.r - last.r);
+        moved += dist;
+        if (dist > 0.05) {
+          // sample along the path, so a fast move still leaves an unbroken wake
+          var n = Math.min(6, Math.ceil(dist / 1.2));
+          for (var k = 1; k <= n; k++) {
+            splash(last.c + (g.c - last.c) * k / n, last.r + (g.r - last.r) * k / n, -Math.min(dist, 3) * 0.05 / n);
+          }
+          lastUser = simT;
+        }
+      }
+      last = g;
+    });
+    window.addEventListener("pointerup", function (e) {
+      if (down && moved < 1.5 && !(window.labIgnore && window.labIgnore(e))) {
+        var g = toGrid(e.clientX, e.clientY);
+        if (g) { dropSource(g.c, g.r); lastUser = simT; }
+      }
+      down = false;
+      if (isTouch) last = null;
+    });
+    window.addEventListener("pointercancel", function () { down = false; last = null; });
+
+    // nobody touching it: drop a pair now and then, so the pattern is always there to see
+    var demoAt = 0.8;
+    function demo() {
+      var off = isSmall ? 5 : 14, row = isSmall ? 9 : 11;
+      dropSource(COLS / 2 - off, row);
+      dropSource(COLS / 2 + off, row);
+    }
+
+    /* ---------- draw ---------- */
+    var AR = 0.839, AG = 0.984, AB = 0.255;   // accent #d6fb41
+    var pos = geo.attributes.position, col = geo.attributes.color;
+    function draw(time) {
+      var pa = pos.array, ca = col.array;
+      for (var k = 0; k < N; k++) {
+        var x = pa[k * 3], z = pa[k * 3 + 2];
+        var base = Math.sin(x * 0.45 + time * 1.1) * 0.32 + Math.cos(z * 0.38 + time * 0.9) * 0.32;
+        var w = h[k] * GAIN;
+        pa[k * 3 + 1] = base * AMBIENT + w;
+        // brighter where the waves add up: that's what makes the interference visible
+        var b = 0.72 + Math.max(-0.4, Math.min(1.0, w * 1.4));   // crests bright, troughs dim → rings and stripes read clearly
+        ca[k * 3] = AR * b; ca[k * 3 + 1] = AG * b; ca[k * 3 + 2] = AB * b;
+      }
+      pos.needsUpdate = true;
+      col.needsUpdate = true;
+      mat.opacity = Math.min(0.8, time * 0.5);   // fade in over ~1.5 s
+    }
+
+    function resize() {
+      var w = hero.clientWidth, hh = hero.clientHeight;
+      renderer.setSize(w, hh, false);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
+      camera.aspect = w / hh;
+      camera.updateProjectionMatrix();
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    var acc = 0, t0 = performance.now(), lastNow = t0;
+    function frame(now) {
+      acc += Math.min(0.1, (now - lastNow) / 1000);
+      lastNow = now;
+      var steps = 0;
+      while (acc >= STEP && steps < 4) { step(); acc -= STEP; steps++; }
+      if (steps === 4) acc = 0;                       // slow device: drop time instead of spiralling
+      if (simT > demoAt && simT - lastUser > 6) { demo(); demoAt = simT + 9; }
+      draw((now - t0) / 1000);
+      camera.position.x += (mouseX * 1.8 - camera.position.x) * 0.04;
+      camera.lookAt(0, 0, -4);
+      renderer.render(scene, camera);
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+
+    // for headless checks only
+    window.labWaves = {
+      maxH: function () { var m = 0; for (var k = 0; k < N; k++) m = Math.max(m, Math.abs(h[k])); return m * GAIN; },
+      // height (world units) at a grid cell, and the biggest |height| at least `minDist` cells from every source
+      at: function (cc, rr) { return h[rr * COLS + cc] * GAIN; },
+      farMax: function (minDist) {
+        var m = 0;
+        for (var rr = 4; rr < ROWS - 4; rr++) for (var cc = 4; cc < COLS - 4; cc++) {
+          var ok = true;
+          for (var s2 = 0; s2 < sources.length; s2++) if (Math.hypot(cc - sources[s2].c, rr - sources[s2].r) < minDist) ok = false;
+          if (ok) m = Math.max(m, Math.abs(h[rr * COLS + cc]));
+        }
+        return m * GAIN;
+      },
+      sources: sources
+    };
+  })();
+  </script>
+</body>
+</html>

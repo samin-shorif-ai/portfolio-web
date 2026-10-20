@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Lab — Name from particles</title>
+  <link rel="preconnect" href="https://api.fontshare.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="lab.css" />
+  <style>
+    /* the real title keeps its place in the layout (the particles use it as a stencil) but isn't drawn */
+    .lab-name .hero__title { visibility: hidden; }
+    .lab-after {
+      min-height: 120vh;
+      padding-block: clamp(96px, 12vw, 180px);
+      border-top: 1px solid var(--line-soft);
+      background: var(--bg-soft);
+    }
+    .lab-after p:last-child { max-width: 460px; color: var(--ink-dim); }
+  </style>
+</head>
+<body class="lab-name" data-fx="name">
+
+  <!-- same markup as the live hero (index.html), so the effect is judged behind the real text -->
+  <section class="hero" id="hero">
+    <canvas class="hero__canvas" id="heroCanvas" aria-hidden="true"></canvas>
+    <div class="hero__grain" aria-hidden="true"></div>
+    <div class="hero__top container">
+      <p class="hero__meta mono">SOFTWARE THAT RUNS REAL BUSINESSES</p>
+      <p class="hero__meta mono">BUSINESS-MINDED&nbsp;&nbsp;·&nbsp;&nbsp;AI-NATIVE</p>
+    </div>
+    <div class="hero__center container">
+      <p class="hero__role mono"><span class="hero__role-dot"></span>PRODUCT&nbsp;ENGINEER</p>
+      <h1 class="hero__title" aria-label="Samin Shorif">
+        <span class="hero__line"><span>SAMIN</span></span>
+        <span class="hero__line hero__line--outline"><span>SHORIF</span></span>
+      </h1>
+      <div class="hero__sub">
+        <p class="hero__desc">I find the problems that cost businesses time and money, and ship the software
+          that fixes them — like GymDesk OS, now used by 4 gyms to manage 700+ members.</p>
+        <div class="hero__actions">
+          <a class="btn btn--fill" href="../#projects"><span class="btn__text">See projects</span><span class="btn__arrow">↓</span></a>
+          <a class="btn" href="../#contact"><span class="btn__text">Start a conversation</span><span class="btn__arrow">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div class="hero__bottom container">
+      <p class="mono">SAAS&nbsp;·&nbsp;AI&nbsp;·&nbsp;AUTOMATION&nbsp;·&nbsp;OPS</p>
+      <div class="hero__scroll" aria-hidden="true"><span class="mono">SCROLL</span><span class="hero__scroll-line"><i></i></span></div>
+      <p class="mono hero__grind">LET'S&nbsp;GRIND&nbsp;↗</p>
+    </div>
+  </section>
+
+  <section class="lab-after">
+    <div class="container">
+      <p class="section__label mono">01&nbsp;—&nbsp;PROJECTS</p>
+      <p>Stand-in for the rest of the page. Scroll back up and the name rebuilds itself.</p>
+    </div>
+  </section>
+
+  <p class="lab-hint" data-mouse="Hover the name to push it · scroll to break it apart"
+     data-touch="Touch the name to push it · scroll to break it apart"></p>
+
+  <script src="lab.js"></script>
+  <script>
+  /* ============================================================
+     NAME FROM PARTICLES
+     The real <h1> is used as a stencil: its two lines are drawn off-screen in the
+     same font, size and position (line 1 filled, line 2 as an outline, like the
+     live hero), and every particle gets one point of it as "home". Particles fly
+     in and assemble, wobble slightly, get pushed by the cursor/finger, and scatter
+     left-to-right as the hero scrolls away — and come back when you scroll up.
+     ============================================================ */
+  (function () {
+    "use strict";
+    var canvas = document.getElementById("heroCanvas");
+    var hero = document.getElementById("hero");
+    var ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    var isTouch = window.matchMedia("(hover: none), (pointer: coarse)").matches;
+
+    var W = 0, H = 0, dpr = 1;
+    var parts = [];
+    var split = 0;                       // parts[0..split) are line 1, the rest line 2
+    var pointer = { x: -9999, y: -9999, on: false };
+
+    function sizeCanvas() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = hero.clientWidth; H = hero.clientHeight;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    // sample the hidden title, line by line, into a list of [x, y, line]
+    function sampleTitle() {
+      var heroRect = hero.getBoundingClientRect();
+      var step = W < 520 ? 2.6 : Math.max(3, W / 400);
+      var pts = [];
+      var off = document.createElement("canvas");
+      var o = off.getContext("2d", { willReadFrequently: true });
+      document.querySelectorAll(".hero__line > span").forEach(function (span, li) {
+        var cs = getComputedStyle(span);
+        var fs = parseFloat(cs.fontSize);
+        var rect = span.getBoundingClientRect();
+        var x0 = Math.max(0, Math.floor(rect.left - heroRect.left - 8));
+        var y0 = Math.max(0, Math.floor(rect.top - heroRect.top - 8));
+        var w = Math.min(W - x0, Math.ceil(rect.width + 16));
+        var hgt = Math.min(H - y0, Math.ceil(rect.height + 16));
+        if (w <= 0 || hgt <= 0) return;
+        off.width = w; off.height = hgt;
+        o.font = "700 " + fs + "px 'Clash Display', 'Arial Black', sans-serif";
+        if ("letterSpacing" in o) o.letterSpacing = cs.letterSpacing;
+        var m = o.measureText(span.textContent);
+        var asc = m.fontBoundingBoxAscent || fs * 0.8;
+        var tx = rect.left - heroRect.left - x0, ty = rect.top - heroRect.top - y0 + asc;
+        if (li === 0) {
+          o.fillStyle = "#fff"; o.fillText(span.textContent, tx, ty);
+        } else {
+          o.strokeStyle = "#fff"; o.lineWidth = Math.max(2, step * 0.95);
+          o.strokeText(span.textContent, tx, ty);
+        }
+        var data = o.getImageData(0, 0, w, hgt).data;
+        // an outline has far less ink than a filled line, so it's sampled more finely to look equally dense
+        var st = li === 0 ? step : step * 0.45;
+        for (var yy = 0; yy < hgt; yy += st) {
+          for (var xx = 0; xx < w; xx += st) {
+            if (data[((yy | 0) * w + (xx | 0)) * 4 + 3] > 140) {
+              // a little jitter, so it reads as dust rather than a printed grid
+              pts.push([x0 + xx + (Math.random() - 0.5) * st * 0.5,
+                        y0 + yy + (Math.random() - 0.5) * st * 0.5, li]);
+            }
+          }
+        }
+      });
+      return pts;
+    }
+
+    function build() {
+      sizeCanvas();
+      var all = sampleTitle();
+      // each line has its own particle budget, thinned evenly (never cut off at the end of the name)
+      var caps = isTouch ? [1500, 1200] : [3300, 2600];
+      var pts = [];
+      [0, 1].forEach(function (li) {
+        var line = all.filter(function (p) { return p[2] === li; });
+        if (line.length > caps[li]) {
+          var every = line.length / caps[li];
+          line = line.filter(function (p, i) { return Math.floor(i / every) !== Math.floor((i - 1) / every); });
+        }
+        pts = pts.concat(line);
+      });
+      var minx = Infinity, maxx = -Infinity, cx = 0, cy = 0;
+      pts.forEach(function (p) { minx = Math.min(minx, p[0]); maxx = Math.max(maxx, p[0]); cx += p[0]; cy += p[1]; });
+      cx /= pts.length || 1; cy /= pts.length || 1;
+      var old = parts;
+      split = 0;
+      parts = pts.map(function (pt, i) {
+        if (pt[2] === 0) split++;
+        var ang = Math.atan2(pt[1] - cy, pt[0] - cx) + (Math.random() - 0.5) * 1.4;
+        var dist = (0.35 + Math.random() * 0.9) * Math.max(W, H);
+        var o = old[i];
+        return {
+          hx: pt[0], hy: pt[1],
+          // first build: start scattered across the screen, so the name assembles itself
+          x: o ? o.x : Math.random() * W, y: o ? o.y : Math.random() * H,
+          vx: 0, vy: 0,
+          sx: pt[0] + Math.cos(ang) * dist, sy: pt[1] + Math.sin(ang) * dist - Math.random() * H * 0.5,
+          delay: ((pt[0] - minx) / ((maxx - minx) || 1)) * 0.55 + Math.random() * 0.15,
+          k: 0.045 + Math.random() * 0.05,
+          ph: Math.random() * 6.283
+        };
+      });
+    }
+
+    function local(e) {
+      var rect = hero.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+    window.addEventListener("pointermove", function (e) {
+      if (isTouch && !pointer.down) return;
+      var p = local(e); pointer.x = p.x; pointer.y = p.y; pointer.on = true;
+    });
+    window.addEventListener("pointerdown", function (e) {
+      if (window.labIgnore && window.labIgnore(e)) return;
+      var p = local(e); pointer.x = p.x; pointer.y = p.y; pointer.on = true; pointer.down = true;
+    });
+    function off() { pointer.down = false; if (isTouch) pointer.on = false; }
+    window.addEventListener("pointerup", off);
+    window.addEventListener("pointercancel", off);
+    document.documentElement.addEventListener("mouseleave", function () { pointer.on = false; });
+
+    var resizeTimer;
+    window.addEventListener("resize", function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(build, 200);
+    });
+
+    var AC = "214, 251, 65";
+    var SIZE = isTouch ? 1.5 : 1.7;
+    var last = performance.now();
+    function frame(now) {
+      var dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      var fr = dt * 60;                      // 1 at 60 Hz, 0.5 at 120 Hz
+      var t = now / 1000;
+      var heroRect = hero.getBoundingClientRect();
+      if (heroRect.bottom > 0) {
+        var P = Math.min(1, Math.max(0, -heroRect.top / (H * 0.7)));   // 0 at the top → 1 when scrolled away
+        var R = isTouch ? 70 : 100, R2 = R * R;
+        var damp = Math.pow(0.82, fr);
+        // 4 brightness levels × 2 lines, one path each, so drawing stays cheap
+        var paths = [];
+        for (var b = 0; b < 8; b++) paths.push(new Path2D());
+        for (var i = 0; i < parts.length; i++) {
+          var p = parts[i];
+          var q = (P * 1.7 - p.delay) / 0.9;
+          q = q < 0 ? 0 : q > 1 ? 1 : q;
+          var e = q * q * (3 - 2 * q);
+          var tx = p.hx + (p.sx - p.hx) * e + Math.sin(t * 1.6 + p.ph) * 0.6;
+          var ty = p.hy + (p.sy - p.hy) * e + Math.cos(t * 1.3 + p.ph) * 0.6;
+          p.vx += (tx - p.x) * p.k * fr;
+          p.vy += (ty - p.y) * p.k * fr;
+          if (pointer.on) {
+            var dx = p.x - pointer.x, dy = p.y - pointer.y, d2 = dx * dx + dy * dy;
+            if (d2 < R2 && d2 > 0.01) {
+              var d = Math.sqrt(d2), force = 1 - d / R;
+              force = force * force * 7 * fr;
+              p.vx += (dx / d) * force; p.vy += (dy / d) * force;
+            }
+          }
+          p.vx *= damp; p.vy *= damp;
+          p.x += p.vx * fr; p.y += p.vy * fr;
+          var level = Math.min(3, Math.round(e * 3));
+          paths[(i < split ? 0 : 4) + level].rect(p.x - SIZE / 2, p.y - SIZE / 2, SIZE, SIZE);
+        }
+        ctx.clearRect(0, 0, W, H);
+        var A = [[0.95, 0.7, 0.48, 0.3], [0.72, 0.55, 0.38, 0.24]];   // line 1 brighter than the outline line
+        for (b = 0; b < 8; b++) {
+          ctx.fillStyle = "rgba(" + AC + "," + A[b < 4 ? 0 : 1][b % 4] + ")";
+          ctx.fill(paths[b]);
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+
+    // wait for the display font, so the stencil matches the real title (give up after 2.5 s)
+    var fontReady = document.fonts && document.fonts.load
+      ? Promise.race([document.fonts.load("700 100px 'Clash Display'"), new Promise(function (r) { setTimeout(r, 2500); })])
+      : Promise.resolve();
+    fontReady.then(function () {
+      build();
+      requestAnimationFrame(frame);
+    });
+
+    // for headless checks only
+    window.labName = { count: function () { return parts.length; }, split: function () { return split; } };
+  })();
+  </script>
+</body>
+</html>

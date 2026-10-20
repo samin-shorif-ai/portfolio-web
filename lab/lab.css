@@ -1,0 +1,58 @@
+/* ============================================================
+   LAB — shared styles for the hero previews in /lab.
+   Each preview reuses the real hero markup + css/style.css, so what you
+   see here is how the effect would look behind the actual hero text.
+   ============================================================ */
+
+/* waves + flow are one screen: no scrolling, and touches go to the effect, not the page */
+body.lab-fullscreen { overflow: hidden; }
+body.lab-fullscreen, body.lab-fullscreen .hero { touch-action: none; }
+
+.hero__top, .hero__center, .hero__bottom { transition: opacity 0.4s; }
+body.lab-notext .hero__top,
+body.lab-notext .hero__center,
+body.lab-notext .hero__bottom { opacity: 0; pointer-events: none; }
+
+/* ---- control bar: back to the list, switch preview, text on/off ---- */
+.lab-bar {
+  position: fixed; top: 14px; left: 50%; z-index: 300;
+  transform: translateX(-50%);
+  display: flex; gap: 2px;
+  padding: 5px;
+  border: 1px solid var(--line); border-radius: 100px;
+  background: rgba(19, 21, 17, 0.82);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  white-space: nowrap;
+}
+.lab-bar a, .lab-bar button {
+  padding: 9px 12px; border-radius: 100px;
+  color: var(--ink-dim);
+  transition: color 0.3s, background 0.3s;
+}
+.lab-bar a:hover, .lab-bar button:hover { color: var(--ink); }
+.lab-bar a[aria-current] { background: var(--accent); color: var(--accent-ink); }
+.lab-bar button[aria-pressed="false"] { color: var(--ink-faint); text-decoration: line-through; }
+
+/* ---- how-to hint, fades after the first touch ---- */
+.lab-hint {
+  position: fixed; left: 50%; bottom: 84px; z-index: 300;
+  transform: translateX(-50%);
+  padding: 9px 14px;
+  border: 1px solid rgba(214, 251, 65, 0.3); border-radius: 100px;
+  background: rgba(13, 14, 12, 0.72);
+  font-family: var(--font-mono); font-size: 10.5px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.6s;
+}
+.lab-hint.is-gone { opacity: 0; }
+
+@media (max-width: 520px) {
+  .lab-bar { font-size: 10px; letter-spacing: 0.08em; }
+  .lab-bar a, .lab-bar button { padding: 9px 10px; }
+  .lab-hint { font-size: 9.5px; letter-spacing: 0.1em; bottom: 104px; }
+}
